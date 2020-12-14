@@ -39,6 +39,10 @@ namespace RawiTween
         InOutBounce
     }
     
+    /// <summary>
+    /// INSTANCE CREATION
+    /// All tween animations will be managed by this GameObject
+    /// </summary>
     public class TweenRunner:MonoBehaviour
     {
         static TweenRunner _Instance;
@@ -87,18 +91,46 @@ namespace RawiTween
         }
 
     }
-    
-    
+
+    /// <summary>
+    /// EXTENSION
+    /// Tween functionalities mainly will be written here 
+    /// </summary>
     public static class RawiTweenExtension
     {
-        public static Tween MoveTo(this Transform obj, Vector3 targetPosition, float duration)
+        public static Tween TweenPosition(this Transform obj, Vector3 targetPosition, float duration)
+        {
+           var tween = new Tween();
+           
+           Vector3 initialPosition = obj.position;
+           TweenRunner.Instance.RunTween(tween, duration,
+               f =>
+               {
+                   if (obj != null)
+                   {
+                       var x = TweenMethod.Ease(tween.Ease, f);
+                       var y = TweenMethod.Ease(tween.Ease, f);
+                       var z = TweenMethod.Ease(tween.Ease, f);
+                       obj.position = new Vector3(
+                           Mathf.Lerp(initialPosition.x, targetPosition.x, x),
+                           Mathf.Lerp(initialPosition.y, targetPosition.y, y),
+                           Mathf.Lerp(initialPosition.z, targetPosition.z, z));
+                   }
+               },
+               () =>
+               {
+                   if (obj != null) obj.position = targetPosition;
+                   tween.OnFinishAction?.Invoke();
+               });
+
+           return tween;
+        }
+        
+        public static Tween TweenLocalPosition(this Transform obj, Vector3 targetPosition, float duration)
         {
             var tween = new Tween();
-            
-            Vector3 initialPosition = obj.position;
-            TweenRunner.Instance.RunTween(
-                tween,
-                duration,
+            Vector3 initialPosition = obj.localPosition;
+            TweenRunner.Instance.RunTween(tween, duration,
                 f =>
                 {
                     if (obj != null)
@@ -106,19 +138,109 @@ namespace RawiTween
                         var x = TweenMethod.Ease(tween.Ease, f);
                         var y = TweenMethod.Ease(tween.Ease, f);
                         var z = TweenMethod.Ease(tween.Ease, f);
-                        obj.position = new Vector3(
+                        obj.localPosition = new Vector3(
                             Mathf.Lerp(initialPosition.x, targetPosition.x, x),
                             Mathf.Lerp(initialPosition.y, targetPosition.y, y),
                             Mathf.Lerp(initialPosition.z, targetPosition.z, z));
-                        
                     }
                 },
                 () =>
                 {
-                    obj.position = targetPosition;
+                    if (obj != null) obj.localPosition = targetPosition;
                     tween.OnFinishAction?.Invoke();
                 });
 
+            return tween;
+        }
+        
+        public static Tween TweenRotation(this Transform obj, Vector3 eulerAngles, float duration)
+        {
+            var tween = new Tween();
+                           
+            Vector3 initialRotation = obj.rotation.eulerAngles;
+            TweenRunner.Instance.RunTween(tween, duration,
+                f =>
+                {
+                    if (obj != null)
+                    {
+                        var x = TweenMethod.Ease(tween.Ease, f);
+                        var y = TweenMethod.Ease(tween.Ease, f);
+                        var z = TweenMethod.Ease(tween.Ease, f);
+                        obj.rotation = Quaternion.Euler( 
+                            new Vector3(
+                                Mathf.Lerp(initialRotation.x, eulerAngles.x, x),
+                                Mathf.Lerp(initialRotation.y, eulerAngles.y, y),
+                                Mathf.Lerp(initialRotation.z, eulerAngles.z, z)
+                            )
+                        );
+                    }
+                },
+                () =>
+                {
+                    if (obj != null) obj.rotation = Quaternion.Euler(eulerAngles);
+                    tween.OnFinishAction?.Invoke();
+                });
+               
+            return tween;
+        }
+        
+        public static Tween TweenLocalRotation(this Transform obj, Vector3 eulerAngles, float duration)
+        {
+            var tween = new Tween();
+                           
+            Vector3 initialRotation = obj.localRotation.eulerAngles;
+            TweenRunner.Instance.RunTween(tween, duration,
+                f =>
+                {
+                    if (obj != null)
+                    {
+                        var x = TweenMethod.Ease(tween.Ease, f);
+                        var y = TweenMethod.Ease(tween.Ease, f);
+                        var z = TweenMethod.Ease(tween.Ease, f);
+                        obj.localRotation = Quaternion.Euler( 
+                                new Vector3(
+                                Mathf.Lerp(initialRotation.x, eulerAngles.x, x),
+                                Mathf.Lerp(initialRotation.y, eulerAngles.y, y),
+                                Mathf.Lerp(initialRotation.z, eulerAngles.z, z)
+                            )
+                        );
+                    }
+                },
+                () =>
+                {
+                    if (obj != null) obj.localRotation = Quaternion.Euler(eulerAngles);
+                    tween.OnFinishAction?.Invoke();
+                });
+               
+            return tween;
+        }
+        
+        public static Tween TweenLocalScale(this Transform obj, Vector3 scale, float duration)
+        {
+            var tween = new Tween();
+                           
+            Vector3 initialRotation = obj.localScale;
+            TweenRunner.Instance.RunTween(tween, duration,
+                f =>
+                {
+                    if (obj != null)
+                    {
+                        var x = TweenMethod.Ease(tween.Ease, f);
+                        var y = TweenMethod.Ease(tween.Ease, f);
+                        var z = TweenMethod.Ease(tween.Ease, f);
+                        obj.localScale = new Vector3(
+                                Mathf.Lerp(initialRotation.x, scale.x, x),
+                                Mathf.Lerp(initialRotation.y, scale.y, y),
+                                Mathf.Lerp(initialRotation.z, scale.z, z)
+                            );
+                    }
+                },
+                () =>
+                {
+                    if (obj != null) obj.localScale = scale;
+                    tween.OnFinishAction?.Invoke();
+                });
+               
             return tween;
         }
         
@@ -127,9 +249,7 @@ namespace RawiTween
             var tween = new Tween();
 
             float initialValue = getter.Invoke();
-            TweenRunner.Instance.RunTween(
-                tween,
-                duration,
+            TweenRunner.Instance.RunTween(tween, duration,
                 f =>
                 {
                     var x = TweenMethod.Ease(tween.Ease, f);
